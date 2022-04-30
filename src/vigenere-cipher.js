@@ -1,32 +1,66 @@
 const { NotImplementedError } = require('../extensions/index.js');
 
-/**
- * Implement class VigenereCipheringMachine that allows us to create
- * direct and reverse ciphering machines according to task description
- * 
- * @example
- * 
- * const directMachine = new VigenereCipheringMachine();
- * 
- * const reverseMachine = new VigenereCipheringMachine(false);
- * 
- * directMachine.encrypt('attack at dawn!', 'alphonse') => 'AEIHQX SX DLLU!'
- * 
- * directMachine.decrypt('AEIHQX SX DLLU!', 'alphonse') => 'ATTACK AT DAWN!'
- * 
- * reverseMachine.encrypt('attack at dawn!', 'alphonse') => '!ULLD XS XQHIEA'
- * 
- * reverseMachine.decrypt('AEIHQX SX DLLU!', 'alphonse') => '!NWAD TA KCATTA'
- * 
- */
+
 class VigenereCipheringMachine {
-  encrypt() {
-    throw new NotImplementedError('Not implemented');
-    // remove line with error and write your code here
+  constructor(typeOfMachine) {
+    if (typeOfMachine == undefined) {
+      typeOfMachine = true;
+    }
+    this.typeOfMachine = typeOfMachine;
   }
-  decrypt() {
-    throw new NotImplementedError('Not implemented');
-    // remove line with error and write your code here
+
+  encrypt(str, key) {
+    if (key == undefined || str == undefined) {
+      throw new Error('Incorrect arguments!');
+    }
+
+    key = key.toUpperCase();
+    str = str.toUpperCase();
+    let moveForward = 0;
+    let result = '';
+    for (let i = 0; i < str.length; i++) {
+      let charCode = str.charCodeAt(i);
+// If is not Latinian
+      if (charCode > 90 || charCode < 65) {
+        result += str[i];
+        moveForward++;
+        continue;
+      }
+//  method returns a string created from the specified sequence of UTF-16 code units. 
+      result += String.fromCharCode(
+        ((charCode - 65 + key.charCodeAt((i - moveForward) % key.length) - 65) % 26) + 65
+      );
+    }
+    if (this.typeOfMachine) {
+      return result;
+    }
+// reverse
+    return result.split('').reverse().join('');
+  }
+
+  decrypt(str, key) {
+    if (str == undefined || key == undefined) {
+      throw new Error('Incorrect arguments!');
+    }
+    key = key.toUpperCase();
+    str = str.toUpperCase();
+    let moveForward = 0;
+    let result = '';
+    for (let i = 0; i < str.length; i++) {
+      const charCode = str.charCodeAt(i);
+      if (charCode < 65 || charCode > 90) {
+        result += str[i];
+        moveForward++;
+        continue;
+      }
+      result += String.fromCharCode(
+        ((charCode - 65 + 26 - (key.charCodeAt((i - moveForward) % key.length) - 65)) % 26) + 65
+      );
+    }
+    if (this.typeOfMachine) {
+      return result;
+    }
+    return result.split('').reverse().join('');
   }
 }
 
